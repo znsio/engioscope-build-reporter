@@ -1,0 +1,11 @@
+{
+  "extends": "rakeshpai",
+  "parserOptions": {
+    "files": [
+      "**/*.ts"
+    ],
+    "project": [
+      "./tsconfig.json"
+    ]
+  }
+}

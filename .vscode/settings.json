@@ -1,0 +1,57 @@
+{
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "eslint.format.enable": true,
+  "editor.tabSize": 2,
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "javascript.preferences.importModuleSpecifier": "relative",
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+  "eslint.alwaysShowStatus": true,
+  "eslint.codeActionsOnSave.mode": "all",
+  "eslint.lintTask.enable": true,
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/*/**": true,
+    "data": true,
+    "cache": true
+  },
+  "githubIssues.useBranchForIssues": "off",
+  "githubIssues.queries": [
+    {
+      "label": "UI issues",
+      "query": "state:open repo:${owner}/${repository} sort:created-desc label:\"ui\""
+    },
+    {
+      "label": "Design issues",
+      "query": "state:open repo:${owner}/${repository} sort:created-desc label:\"design\""
+    },
+    {
+      "label": "Scraper issues",
+      "query": "state:open repo:${owner}/${repository} sort:created-desc label:\"scraper\""
+    },
+    {
+      "label": "Assigned to me",
+      "query": "state:open repo:${owner}/${repository} sort:created-desc asignee:@me"
+    },
+    {
+      "label": "All open issues",
+      "query": "state:open repo:${owner}/${repository} sort:created-desc"
+    }
+  ]
+}

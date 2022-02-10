@@ -1,0 +1,29 @@
+{
+  "name": "engioscope-build-reporter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint \"./**/*.ts\" --cache",
+    "build": "tsc",
+    "start": "ts-node index.ts",
+    "prepare": "husky install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/znsio/engioscope-build-reporter.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/znsio/engioscope-build-reporter/issues"
+  },
+  "homepage": "https://github.com/znsio/engioscope-build-reporter#readme",
+  "devDependencies": {
+    "eslint": "^8.8.0",
+    "eslint-config-rakeshpai": "^1.0.3",
+    "husky": "^6.0.0",
+    "ts-node": "^10.5.0",
+    "typescript": "^4.5.5"
+  }
+}
