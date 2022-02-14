@@ -2,9 +2,7 @@
   "name": "engioscope-build-reporter",
   "version": "0.0.1",
   "description": "",
-  "dist": {
-    "engioscope-build-reporter": "dist/index.js"
-  },
+  "bin": "dist/index.js",
   "scripts": {
     "lint": "eslint \"./**/*.ts\" --cache",
     "build": "tsc",
