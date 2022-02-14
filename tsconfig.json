@@ -16,6 +16,7 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "target": "ES2015",
+    "module": "CommonJS",
     "strict": true,
     "baseUrl": "."
   }
