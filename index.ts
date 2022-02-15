@@ -3,7 +3,8 @@ import yargs from 'yargs/yargs';
 import { hideBin } from 'yargs/helpers';
 import { promises as fs } from 'fs';
 import { join } from 'path';
-import http from 'http';
+// eslint-disable-next-line no-redeclare
+import fetch from 'node-fetch';
 
 const azureEnvVariables = [
   'SYSTEM_COLLECTIONURI',
@@ -19,53 +20,70 @@ const azureEnvVariables = [
   'BUILD_REASON'
 ] as const;
 
-const mandatoryCliArgs = ['sonarHost', 'sonarProjectKey', 'engioscopeHost'] as const;
+const ensureValidUrl = (url: string, key: string) => {
+  try {
+    // eslint-disable-next-line no-new
+    new URL(url);
+  } catch (e) {
+    throw new Error(`Invalid URL for "${key}": "${url}"`);
+  }
+};
 
 const parseCliArgs = (cliArgs: string[]) => {
   const parsed = yargs(hideBin(cliArgs))
-    .options(mandatoryCliArgs.reduce((yArgsOptions, key) => ({
-      ...yArgsOptions,
-      [key]: { type: 'string', demandOption: true }
-    }), {} as Record<typeof mandatoryCliArgs[number], {type: 'string'; demandOption: true }>))
+    .option('eh', {
+      alias: 'engioscope-host',
+      type: 'string',
+      demandOption: true,
+      description: 'Engiscope host',
+      group: 'Engioscope'
+    })
+    .option('sh', {
+      alias: 'sonar-host',
+      type: 'string',
+      implies: ['sp'],
+      description: 'The SonarQube host that has this project',
+      group: 'SonarQube'
+    })
+    .option('sp', {
+      alias: 'sonar-project-key',
+      type: 'string',
+      implies: ['sh'],
+      description: 'The SonarQube project key',
+      group: 'SonarQube'
+    })
     .example([
-      ['npx engioscope-build-reporter --sonarHost=<SONAR_HOST_HTTP_URL>'
-       + '--sonarProjectKey=<SONAR_PROJECT_KEY> --engioscopeHost=<ENGIOSCOPE_HOST_HTTP_URL>']
+      ['npx engioscope-build-reporter --sonar-host=<SONAR_HOST_HTTP_URL>'
+       + ' --sonar-project-key=<SONAR_PROJECT_KEY> --engioscope-host=<ENGIOSCOPE_HOST_HTTP_URL>']
     ])
     .check(parsedArgs => {
-      mandatoryCliArgs.forEach(key => {
-        if (!parsedArgs[key]) {
-          throw new Error(`Missing argument: ${[key]}`);
-        }
-
-        if (key === 'engioscopeHost' || key === 'sonarHost') {
-          try {
-            // eslint-disable-next-line no-new
-            new URL(parsedArgs[key]);
-          } catch (e) {
-            console.error(`Malformed URL passed:- "${key}":${parsedArgs[key]}`);
-            throw e;
-          }
-        }
-      });
-
+      ensureValidUrl(parsedArgs.eh, 'engioscope-host');
+      if (parsedArgs.sh) ensureValidUrl(parsedArgs.sh, 'sonar-host');
       return true;
     })
     .parseSync();
 
-  return mandatoryCliArgs.map(k => [k, parsed[k]]);
+  return {
+    engioscopeHost: parsed.eh,
+    ...(
+      parsed.sh && parsed.sp
+        ? { sonarHost: parsed.sh, sonarProjectKey: parsed.sp }
+        : {}
+    )
+  } as const;
 };
 
 const writeRow = (key: string, value: string) => `
-  <dl>
     <dt>${key}</dt>
     <dd id="${key}">${value}</dd>
-  </dl>
 `;
 
-const writeHtml = async (args: string[][]) => {
+const generateHtml = async (args: string[][]) => {
   const html = `
     <html>
-      ${args.map(([k, v]) => writeRow(k, v))}
+      <dl>
+        ${args.map(([k, v]) => writeRow(k, v)).join('')}
+      </dl>
     </html>
   `;
 
@@ -73,38 +91,29 @@ const writeHtml = async (args: string[][]) => {
   return html;
 };
 
-const postToEngioscope = (url: URL) => (html: string) => {
-  const { hostname, port } = url;
-
-  const options = {
-    hostname,
-    port,
-    path: '/api/azure-build-report',
+const postToEngioscope = async (url: URL, html: string) => {
+  const response = await fetch(`${url.origin}/api/azure-build-report`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  };
-
-  const data = JSON.stringify({
-    html
+    headers: { 'Content-Type': 'text/html' },
+    body: html
   });
 
-  const req = http.request(options);
-  req.on('error', error => {
-    console.error('Failed to POST build report to Engioscope', error);
-  });
-  req.write(data);
-  req.end();
+  if (response.status !== 200) {
+    throw new Error(`Failed to post build report to Engiscope: ${response.status} ${JSON.stringify(await response.text())}`);
+  }
+
+  // eslint-disable-next-line no-console
+  console.log('Successfully posted build report to Engiscope');
 };
 
-(() => {
+(async () => {
   const cliArgs = parseCliArgs(process.argv);
-  const [, engioscopeHost] = cliArgs.find(([k]) => k === 'engioscopeHost') as string[];
+  const { engioscopeHost } = cliArgs;
 
-  writeHtml([
-    ...cliArgs,
+  const html = await generateHtml([
+    ...Object.entries(cliArgs),
     ...azureEnvVariables.map(k => [k, process.env[k] as string])
-  ])
-    .then(postToEngioscope(new URL(engioscopeHost)));
+  ]);
+
+  await postToEngioscope(new URL(engioscopeHost), html);
 })();
