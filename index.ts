@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 import yargs from 'yargs/yargs';
-import { hideBin } from 'yargs/helpers';
-import { promises as fs } from 'fs';
+import fs from 'fs';
 import { join } from 'path';
+// eslint-disable-next-line no-redeclare
+import { URL } from 'url';
 // eslint-disable-next-line no-redeclare
 import fetch from 'node-fetch';
 
@@ -30,7 +31,7 @@ const ensureValidUrl = (url: string, key: string) => {
 };
 
 const parseCliArgs = (cliArgs: string[]) => {
-  const parsed = yargs(hideBin(cliArgs))
+  const parsed = yargs(cliArgs)
     .option('eh', {
       alias: 'engioscope-host',
       type: 'string',
@@ -61,7 +62,7 @@ const parseCliArgs = (cliArgs: string[]) => {
       if (parsedArgs.sh) ensureValidUrl(parsedArgs.sh, 'sonar-host');
       return true;
     })
-    .parseSync();
+    .argv;
 
   return {
     engioscopeHost: parsed.eh,
@@ -87,7 +88,9 @@ const generateHtml = async (args: string[][]) => {
     </html>
   `;
 
-  await fs.writeFile(join(__dirname, 'build-report.html'), html, 'utf8');
+  // Using sync api since we need to support node 8, and node 8 doesn't
+  // ship with promise-based fs API.
+  fs.writeFileSync(join(__dirname, 'build-report.html'), html, 'utf8');
   return html;
 };
 
