@@ -5,7 +5,7 @@
   "bin": "dist/index.js",
   "scripts": {
     "lint": "eslint \"./**/*.ts\" --cache",
-    "build": "tsc",
+    "build": "tsc && cp ./build-report.ejs ./dist/build-report.ejs",
     "start": "ts-node index.ts",
     "prepare": "husky install"
   },
@@ -25,11 +25,13 @@
     "@types/yargs": "^15.0.14",
     "eslint": "^8.8.0",
     "eslint-config-rakeshpai": "^1.0.3",
-    "husky": "^6.0.0",
+    "husky": "^7.0.4",
     "ts-node": "^10.5.0",
     "typescript": "^4.5.5"
   },
   "dependencies": {
+    "@types/ejs": "^3.1.0",
+    "ejs": "^3.1.6",
     "node-fetch": "^2.6.7",
     "yargs": "^15.4.1"
   }

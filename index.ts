@@ -6,6 +6,7 @@ import { join } from 'path';
 import { URL } from 'url';
 // eslint-disable-next-line no-redeclare
 import fetch from 'node-fetch';
+import ejs from 'ejs';
 
 const azureEnvVariables = [
   'SYSTEM_COLLECTIONURI',
@@ -74,25 +75,14 @@ const parseCliArgs = (cliArgs: string[]) => {
   } as const;
 };
 
-const writeRow = (key: string, value: string) => `
-    <dt>${key}</dt>
-    <dd id="${key}">${value}</dd>
-`;
-
-const generateHtml = async (args: string[][]) => {
-  const html = `
-    <html>
-      <dl>
-        ${args.map(([k, v]) => writeRow(k, v)).join('')}
-      </dl>
-    </html>
-  `;
-
-  // Using sync api since we need to support node 8, and node 8 doesn't
-  // ship with promise-based fs API.
-  fs.writeFileSync(join(__dirname, 'build-report.html'), html, 'utf8');
-  return html;
-};
+const generateHtml = async (args: Record<string, string | undefined>) => (
+  ejs.render(
+    // Using sync api since we need to support node 8, and node 8 doesn't
+    // ship with promise-based fs API.
+    fs.readFileSync(join(__dirname, 'build-report.ejs'), 'utf8'),
+    args
+  )
+);
 
 const postToEngioscope = async (url: URL, html: string) => {
   const response = await fetch(`${url.origin}/api/azure-build-report`, {
@@ -114,10 +104,14 @@ const postToEngioscope = async (url: URL, html: string) => {
   const cliArgs = parseCliArgs(process.argv);
   const { engioscopeHost } = cliArgs;
 
-  const html = await generateHtml([
-    ...Object.entries(cliArgs),
-    ...azureEnvVariables.map(k => [k, process.env[k] as string])
-  ]);
+  const html = await generateHtml({
+    ...cliArgs,
+    ...azureEnvVariables.reduce<Record<string, string | undefined>>((acc, k) => {
+      acc[k] = process.env[k];
+      return acc;
+    }, {}),
+    BUILD_TIMESTAMP: new Date().toISOString()
+  });
 
   // eslint-disable-next-line no-console
   console.log(html);

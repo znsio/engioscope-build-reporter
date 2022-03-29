@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>EngiScope Build Report</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      :root {
+        --font-color: rgba(0, 0, 0, 9);
+        --bg-color: #fff;
+        --code-bg-color: #fafafa;
+        --code-border-color: #ccc;
+        --link-color: rgba(0, 120, 212, 1);
+        --separator-color: #eee;
+        --secondary-text-color: rgba(0, 0, 0, 0.54);
+        --card-background-color: rgba(0, 0, 0, 0.1);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --font-color: rgba(255, 255, 255, 0.95);
+          --bg-color: rgba(32, 31, 30, 1);
+          --code-bg-color: rgba(255, 255, 255, 0.15);
+          --code-border-color: rgba(255, 255, 255, 0.1);
+          --link-color: rgba(0, 120, 212, 1);
+          --separator-color: rgba(255, 255, 255, 0.1);
+          --secondary-text-color: rgba(255, 255, 255, 0.54);
+          --card-background-color: rgba(255, 255, 255, 0.05);
+        }
+      }
+
+      body {
+        font-family: "Segoe UI VSS (Regular)","Segoe UI","-apple-system",BlinkMacSystemFont,Roboto,"Helvetica Neue",Helvetica,Ubuntu,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+        color: var(--font-color);
+        background-color: var(--bg-color);
+        line-height: 1.4;
+        padding: 1em;
+      }
+
+      h1, h2, h3 {
+        font-weight: 400;
+      }
+
+      h1, h2, h3, p {
+        margin: 0;
+        padding: 0;
+      }
+
+      code {
+        display: inline-block;
+        padding-block: 0.1em;
+        padding-inline: 0.4em;
+        background-color: var(--code-bg-color);
+        border-radius: 0.3em;
+        border: 1px solid var(--code-border-color);
+        font-size: 1.1em;
+        color: var(--font-color);
+      }
+
+      a {
+        color: var(--link-color);
+      }
+
+      footer {
+        border-top: 1px solid var(--separator-color);
+        color: var(--secondary-text-color);
+        font-size: 0.8em;
+        padding: 0.5em;
+      }
+
+      .card-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        padding-block: 2em;
+      }
+
+      .card {
+        border-radius: 1em;
+        padding-block: 1em;
+        padding-inline: 1.5em;
+        background: var(--card-background-color);
+      }
+
+      .card h2 {
+        padding-block-end: 0.5em;
+      }
+
+      .additional-details-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        margin-block-start: 0.5em;
+        font-size: 0.9em;
+        background-color: var(--card-background-color);
+        border-radius: 1em;
+        padding: 1em;
+      }
+
+      .additional-details-container > div {
+        padding: 0.5em;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>
+        Build report for <span id="SYSTEM_TEAMPROJECT"><%= SYSTEM_TEAMPROJECT %></span> / <span id="BUILD_REPOSITORY_NAME"><%= BUILD_REPOSITORY_NAME %></span>
+      </h1>
+      <p style="color: var(--secondary-text-color)">
+        Ran on the <code id="BUILD_SOURCEBRANCHNAME"><%= BUILD_SOURCEBRANCHNAME %></code> branch.
+      </ps>
+    </header>
+    <div class="card-container">
+      <section class="card">
+        <h2>SonarQube</h2>
+        <p>Sonar scan initiated on the <b id="sonarProjectKey"><%= sonarProjectKey %></b> project at the SonarQube server at <b id="sonarHost"><%= sonarHost %></b></p>
+        <p><a target="_blank" href="<%= sonarHost %>/dashboard?id=<%= sonarProjectKey %>&branch=<%= BUILD_SOURCEBRANCHNAME %>">See full SonarQube report &raquo;</a></p>
+      </section>
+    </div>
+    <details style="margin-block-end: 1em;">
+      <summary style="font-size: 0.9em; color: var(--secondary-text-color); cursor: pointer;">Additional details</summary>
+      <div class="additional-details-container">
+        <div>
+          Source branch<br />
+          <code id="BUILD_SOURCEBRANCH"><%= BUILD_SOURCEBRANCH %></code>
+        </div>
+        <div>
+          Build ID<br />
+          <span id="BUILD_BUILDID"><%= BUILD_BUILDID %></span>
+        </div>
+        <div>
+          Build definition ID<br />
+          <span id="SYSTEM_DEFINITIONID"><%= SYSTEM_DEFINITIONID %></span>
+        </div>
+        <div>
+          Build reason<br />
+          <span id="BUILD_REASON"><%= BUILD_REASON %></span>
+        </div>
+        <div>
+          Agent name<br />
+          <code id="AGENT_NAME"><%= AGENT_NAME %></code>
+        </div>
+        <div>
+          Collection URI<br />
+          <a target="_blank" href="<%= SYSTEM_COLLECTIONURI %>" id="SYSTEM_COLLECTIONURI"><%= SYSTEM_COLLECTIONURI %></a>
+        </div>
+        <div>
+          Collection ID<br />
+          <span id="SYSTEM_COLLECTIONID"><%= SYSTEM_COLLECTIONID %></span>
+        </div>
+        <div>
+          Repository ID<br />
+          <span id="BUILD_REPOSITORY_ID"><%= BUILD_REPOSITORY_ID %></span>
+        </div>
+      </div>
+    </details>
+    <footer>
+      <ul style="padding-inline-start: 1em;">
+        <li>This report was generated on <span id="BUILD_TIMESTAMP"><%= BUILD_TIMESTAMP %></span>.</li>
+        <li>This report has been posted to the Engioscope server at <a target="_blank" href="<%= engioscopeHost %>"><%= engioscopeHost %></a>.</li>
+      </ul>
+    </footer>
+  </body>
+</html>
