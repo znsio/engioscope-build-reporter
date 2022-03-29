@@ -105,8 +105,9 @@ const postToEngioscope = async (url: URL, html: string) => {
     throw new Error(`Failed to post build report to Engiscope: ${response.status} ${JSON.stringify(await response.text())}`);
   }
 
+  // We're printing to stderr, since we want to use console.log for the HTML
   // eslint-disable-next-line no-console
-  console.log('Successfully posted build report to Engiscope');
+  console.error('Successfully posted build report to Engiscope');
 };
 
 (async () => {
@@ -117,6 +118,9 @@ const postToEngioscope = async (url: URL, html: string) => {
     ...Object.entries(cliArgs),
     ...azureEnvVariables.map(k => [k, process.env[k] as string])
   ]);
+
+  // eslint-disable-next-line no-console
+  console.log(html);
 
   await postToEngioscope(new URL(engioscopeHost), html);
 })();
