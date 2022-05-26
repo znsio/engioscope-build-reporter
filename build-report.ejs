@@ -100,6 +100,16 @@
       .additional-details-container > div {
         padding: 0.5em;
       }
+
+      .bottom-details {
+        margin-block-end: 1em;
+      }
+
+      .bottom-details summary {
+        font-size: 0.9em;
+        color: var(--secondary-text-color);
+        cursor: pointer;
+      }
     </style>
   </head>
   <body>
@@ -122,8 +132,8 @@
         </p>
       </section>
     </div>
-    <details style="margin-block-end: 1em;">
-      <summary style="font-size: 0.9em; color: var(--secondary-text-color); cursor: pointer;">Additional details</summary>
+    <details class="bottom-details">
+      <summary>Additional details</summary>
       <div class="additional-details-container">
         <div>
           Source branch<br />
@@ -159,6 +169,12 @@
         </div>
       </div>
     </details>
+    <% if(buildScript) { %>
+      <details class="bottom-details">
+        <summary>Build script</summary>
+        <pre id="buildScript" style="font-size: 1rem;"><%= buildScript %></pre>
+      </details>
+    <% } %>
     <footer>
       <ul style="padding-inline-start: 1em;">
         <li>This report was generated on <span id="BUILD_TIMESTAMP"><%= BUILD_TIMESTAMP %></span>.</li>

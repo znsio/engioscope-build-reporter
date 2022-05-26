@@ -7,6 +7,7 @@ import { URL } from 'url';
 import fetch from 'node-fetch';
 import generateHtml from './generate-html';
 import getCliArgs from './get-cli-args';
+import readPipelineYml from './read-pipeline-yml';
 
 const postToEngioscope = async (url: URL, html: string) => {
   const response = await fetch(`${url.origin}/api/azure-build-report`, {
@@ -27,7 +28,18 @@ const postToEngioscope = async (url: URL, html: string) => {
   const { dryRun, ...cliArgs } = getCliArgs();
   const { engioscopeHost } = cliArgs;
 
-  const html = generateHtml(cliArgs as unknown as Record<string, string | undefined>);
+  let ymlContents: string | null = null;
+  try {
+    ymlContents = await readPipelineYml();
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error('Error reading yml contents', e);
+  }
+
+  const html = generateHtml({
+    ...cliArgs as unknown as Record<string, string | undefined>,
+    buildScript: ymlContents || undefined
+  });
 
   fs.writeFileSync(join(process.cwd(), 'build-report.html'), html);
   if (!dryRun) await postToEngioscope(new URL(engioscopeHost), html);
