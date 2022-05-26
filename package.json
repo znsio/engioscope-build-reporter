@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "eslint \"./**/*.ts\" --cache",
     "build": "tsc && cp ./build-report.ejs ./dist/build-report.ejs",
-    "start": "ts-node index.ts",
+    "start": "ts-node src/index.ts",
     "prepare": "husky install"
   },
   "repository": {
