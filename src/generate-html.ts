@@ -20,7 +20,7 @@ const generateHtml = (args: Record<string, string | undefined>) => (
   ejs.render(
     // Using sync api since we need to support node 8, and node 8 doesn't
     // ship with promise-based fs API.
-    fs.readFileSync(join(__dirname, '..', 'build-report.ejs'), 'utf8'),
+    fs.readFileSync(join(__dirname, 'build-report.ejs'), 'utf8'),
     args
   )
 );

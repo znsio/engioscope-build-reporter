@@ -25,6 +25,8 @@ const postToEngioscope = async (url: URL, html: string) => {
 };
 
 (async () => {
+  // eslint-disable-next-line no-console
+  console.log(`engioscope-build-reporter@${process.env.npm_package_version}`);
   const { dryRun, ...cliArgs } = getCliArgs();
   const { engioscopeHost } = cliArgs;
 

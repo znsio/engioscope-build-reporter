@@ -5,7 +5,7 @@
   "bin": "dist/index.js",
   "scripts": {
     "lint": "eslint \"./**/*.ts\" --cache",
-    "build": "tsc && cp ./build-report.ejs ./dist/build-report.ejs",
+    "build": "tsc && cp ./src/build-report.ejs ./dist/build-report.ejs",
     "start": "ts-node src/index.ts",
     "prepare": "husky install"
   },
