@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import fs from 'fs';
+import https from 'https';
 import { join } from 'path';
 // eslint-disable-next-line no-redeclare
 import { URL } from 'url';
@@ -9,11 +10,16 @@ import generateHtml from './generate-html';
 import getCliArgs from './get-cli-args';
 import readPipelineYml from './read-pipeline-yml';
 
-const postToEngioscope = async (url: URL, html: string) => {
+const postToEngioscope = async (url: URL, html: string, noVerify = false) => {
+  const httpsAgent = new https.Agent({
+    rejectUnauthorized: !noVerify
+  });
+
   const response = await fetch(`${url.origin}/api/azure-build-report`, {
     method: 'POST',
     headers: { 'Content-Type': 'text/html' },
-    body: html
+    body: html,
+    ...((url.protocol === 'https:' && noVerify) ? { agent: httpsAgent } : {})
   });
 
   if (response.status !== 200) {
@@ -27,7 +33,7 @@ const postToEngioscope = async (url: URL, html: string) => {
 (async () => {
   // eslint-disable-next-line no-console
   console.log(`engioscope-build-reporter@${process.env.npm_package_version}`);
-  const { dryRun, ...cliArgs } = getCliArgs();
+  const { dryRun, noVerify, ...cliArgs } = getCliArgs();
   const { engioscopeHost } = cliArgs;
 
   let ymlContents: string | null = null;
@@ -44,5 +50,5 @@ const postToEngioscope = async (url: URL, html: string) => {
   });
 
   fs.writeFileSync(join(process.cwd(), 'build-report.html'), html);
-  if (!dryRun) await postToEngioscope(new URL(engioscopeHost), html);
+  if (!dryRun) await postToEngioscope(new URL(engioscopeHost), html, noVerify);
 })();

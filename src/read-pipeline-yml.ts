@@ -1,5 +1,6 @@
 // eslint-disable-next-line no-redeclare
 import fetch from 'node-fetch';
+import https from 'https';
 import fs from 'fs';
 import { join } from 'path';
 
@@ -17,12 +18,18 @@ const getYmlFileName = async (
   collectionUri: string,
   projectName: string,
   buildDefinitionId: string,
-  accessToken: string
+  accessToken: string,
+  noVerify = false
 ) => {
+  const httpsAgent = new https.Agent({
+    rejectUnauthorized: !noVerify
+  });
+
   const response = await fetch(`${collectionUri}/${encodeURIComponent(projectName)}/_apis/build/Definitions/${buildDefinitionId}`, {
     headers: {
       Authorization: `Bearer ${accessToken}`
-    }
+    },
+    ...((collectionUri.startsWith('https:') && noVerify) ? { agent: httpsAgent } : {})
   });
 
   if (!response.ok) {
@@ -38,7 +45,7 @@ const readBuildYamlFile = (yamlFilename: string) => (
   fs.readFileSync(join(process.env.BUILD_SOURCESDIRECTORY || '', yamlFilename), 'utf8')
 );
 
-const getBuildDefinitionDetails = async () => {
+const getBuildDefinitionDetails = async (noVerify = false) => {
   const accessToken = process.env.SYSTEM_ACCESSTOKEN;
   if (!accessToken) {
     log('No access token found');
@@ -63,7 +70,13 @@ const getBuildDefinitionDetails = async () => {
     return null;
   }
 
-  const fileName = await getYmlFileName(collectionUri, projectName, buildDefinitionId, accessToken);
+  const fileName = await getYmlFileName(
+    collectionUri,
+    projectName,
+    buildDefinitionId,
+    accessToken,
+    noVerify
+  );
   if (!fileName) {
     log('Couldn\'t find Yml filename from Azure API');
     return null;
@@ -78,4 +91,4 @@ const getBuildDefinitionDetails = async () => {
   return yamlFile;
 };
 
-export default () => getBuildDefinitionDetails();
+export default getBuildDefinitionDetails;

@@ -40,6 +40,12 @@ const parseCliArgs = (cliArgs: string[]) => {
       description: 'Do not post to Engiscope',
       group: 'Engiscope'
     })
+    .option('nv', {
+      alias: 'no-verify',
+      type: 'boolean',
+      description: 'Do not verify the SSL certificate (not-recommended)',
+      group: 'Engiscope'
+    })
     .example([
       ['npx engioscope-build-reporter --sonar-host=<SONAR_HOST_HTTP_URL>'
        + ' --sonar-project-key=<SONAR_PROJECT_KEY> --engioscope-host=<ENGIOSCOPE_HOST_HTTP_URL>']
@@ -58,7 +64,8 @@ const parseCliArgs = (cliArgs: string[]) => {
         ? { sonarHost: parsed.sh, sonarProjectKey: parsed.sp }
         : {}
     ),
-    dryRun: parsed.dr
+    dryRun: parsed.dr,
+    noVerify: Boolean(parsed.nv)
   } as const;
 };
 
